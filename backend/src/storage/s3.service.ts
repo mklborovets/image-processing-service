@@ -11,12 +11,12 @@ export class S3Service {
 
   constructor(private readonly configService: ConfigService) {
     this.s3Client = new S3Client({
-      region: this.configService.get<string>('AWS_REGION'),
-      endpoint: this.configService.get<string>('AWS_ENDPOINT'),
+      region: this.configService.getOrThrow<string>('AWS_REGION'),
+      endpoint: this.configService.getOrThrow<string>('AWS_ENDPOINT'),
       forcePathStyle: true,
       credentials: {
-        accessKeyId: this.configService.get<string>('AWS_ACCESS_KEY_ID'),
-        secretAccessKey: this.configService.get<string>('AWS_SECRET_ACCESS_KEY'),
+        accessKeyId: this.configService.getOrThrow<string>('AWS_ACCESS_KEY_ID'),
+        secretAccessKey: this.configService.getOrThrow<string>('AWS_SECRET_ACCESS_KEY'),
       },
     });
   }
@@ -33,7 +33,7 @@ export class S3Service {
         Fields: {
           'Content-Type': mimeType,
         },
-        Expires: 600, // 10 minutes
+        Expires: 600,
       });
       return { url, fields };
     } catch (error) {
@@ -48,7 +48,7 @@ export class S3Service {
         Bucket: bucket,
         Key: key,
       });
-      return await getSignedUrl(this.s3Client, command, { expiresIn: 900 }); // 15 minutes TTL
+      return await getSignedUrl(this.s3Client, command, { expiresIn: 900 });
     } catch (error) {
       this.logger.error(`Error creating presigned GET url for ${key}`, error);
       throw error;

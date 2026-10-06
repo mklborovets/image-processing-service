@@ -6,6 +6,7 @@ import { envValidationSchema } from './config/env.validation';
 import { PrismaModule } from './prisma/prisma.module';
 import { HealthModule } from './health/health.module';
 import { StorageModule } from './storage/storage.module';
+import { ImagesModule } from './images/images.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { StorageModule } from './storage/storage.module';
     PrismaModule,
     HealthModule,
     StorageModule,
+    ImagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
