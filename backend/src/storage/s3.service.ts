@@ -1,8 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, GetObjectCommand, DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { Readable } from 'stream';
 
 @Injectable()
 export class S3Service {
@@ -65,5 +66,21 @@ export class S3Service {
     } catch (error) {
       this.logger.error(`Error deleting object ${key} from bucket ${bucket}`, error);
     }
+  }
+
+  async getObjectStream(bucket: string, key: string): Promise<Readable> {
+    const command = new GetObjectCommand({ Bucket: bucket, Key: key });
+    const response = await this.s3Client.send(command);
+    return response.Body as Readable;
+  }
+
+  async uploadBuffer(bucket: string, key: string, buffer: Buffer, mimeType: string) {
+    const command = new PutObjectCommand({
+      Bucket: bucket,
+      Key: key,
+      Body: buffer,
+      ContentType: mimeType,
+    });
+    await this.s3Client.send(command);
   }
 }

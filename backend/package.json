@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1146.0",
+    "@aws-sdk/client-sqs": "^3.1146.0",
     "@aws-sdk/s3-presigned-post": "^3.1146.0",
     "@aws-sdk/s3-request-presigner": "^3.1146.0",
     "@nestjs/common": "^11.0.1",
@@ -35,6 +36,7 @@
     "joi": "^18.2.9",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "sharp": "^0.35.5",
     "uuid": "^14.0.2"
   },
   "devDependencies": {

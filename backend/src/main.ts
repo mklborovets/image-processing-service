@@ -10,6 +10,7 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
   app.enableCors();
+  app.enableShutdownHooks();
 
   app.useGlobalPipes(
     new ValidationPipe({
