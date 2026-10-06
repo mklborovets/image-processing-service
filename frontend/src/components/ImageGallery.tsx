@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
-import { ImageRecord, PaginatedResponse } from '../types/Image';
+import type { ImageRecord, PaginatedResponse } from '../types/Image';
 
 export const ImageGallery: React.FC = () => {
   const [images, setImages] = useState<ImageRecord[]>([]);
@@ -62,16 +62,16 @@ export const ImageGallery: React.FC = () => {
 
           {totalPages > 1 && (
             <div className="pagination">
-              <button 
-                disabled={page === 1} 
+              <button
+                disabled={page === 1}
                 onClick={() => setPage(p => p - 1)}
                 className="btn-page"
               >
                 Prev
               </button>
               <span>Page {page} of {totalPages}</span>
-              <button 
-                disabled={page === totalPages} 
+              <button
+                disabled={page === totalPages}
                 onClick={() => setPage(p => p + 1)}
                 className="btn-page"
               >
