@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: images-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: images_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d images_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  floci:
+    image: ghcr.io/floci-io/floci:latest
+    container_name: images-floci
+    ports:
+      - "4566:4566"
+    environment:
+      - FLOCI_SERVICES=s3,sqs
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:4566/_floci/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  aws-init:
+    image: amazon/aws-cli
+    container_name: images-aws-init
+    depends_on:
+      floci:
+        condition: service_healthy
+    volumes:
+      - ./infra/init-aws.sh:/init-aws.sh
+    entrypoint: /bin/sh
+    command: -c "chmod +x /init-aws.sh && /init-aws.sh"
+    environment:
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=eu-central-1
+
+volumes:
+  postgres_data:
