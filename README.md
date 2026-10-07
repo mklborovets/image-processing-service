@@ -1,4 +1,4 @@
-# Antigravity Image Service
+# Image Service
 
 A full-stack event-driven image processing application built with NestJS, React, PostgreSQL, and AWS (S3 & SQS).
 
