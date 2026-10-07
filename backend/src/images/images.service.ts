@@ -17,16 +17,19 @@ export class ImagesService {
     private readonly s3Service: S3Service,
     private readonly configService: ConfigService,
   ) {
-    this.originalsBucket = this.configService.getOrThrow<string>('S3_ORIGINALS_BUCKET');
-    this.thumbnailsBucket = this.configService.getOrThrow<string>('S3_THUMBNAILS_BUCKET');
+    this.originalsBucket = this.configService.getOrThrow<string>(
+      'S3_ORIGINALS_BUCKET',
+    );
+    this.thumbnailsBucket = this.configService.getOrThrow<string>(
+      'S3_THUMBNAILS_BUCKET',
+    );
   }
 
   async createUploadUrl(dto: CreateUploadUrlDto) {
     const id = uuidv4();
-    const extension = dto.fileName.split('.').pop() || 'tmp';
-    const originalKey = `originals/${id}.${extension}`;
-
     const sanitizedName = sanitizeFilename(dto.fileName);
+    const extension = sanitizedName.includes('.') ? sanitizedName.split('.').pop() : 'tmp';
+    const originalKey = `originals/${id}.${extension}`;
 
     const record = await this.prisma.image.create({
       data: {
@@ -71,9 +74,15 @@ export class ImagesService {
     const enrichedItems = await Promise.all(
       items.map(async (item) => ({
         ...item,
-        originalViewUrl: await this.s3Service.createPresignedGetUrl(this.originalsBucket, item.originalKey),
+        originalViewUrl: await this.s3Service.createPresignedGetUrl(
+          this.originalsBucket,
+          item.originalKey,
+        ),
         thumbnailViewUrl: item.thumbnailKey
-          ? await this.s3Service.createPresignedGetUrl(this.thumbnailsBucket, item.thumbnailKey)
+          ? await this.s3Service.createPresignedGetUrl(
+              this.thumbnailsBucket,
+              item.thumbnailKey,
+            )
           : null,
       })),
     );
@@ -97,9 +106,15 @@ export class ImagesService {
 
     return {
       ...item,
-      originalViewUrl: await this.s3Service.createPresignedGetUrl(this.originalsBucket, item.originalKey),
+      originalViewUrl: await this.s3Service.createPresignedGetUrl(
+        this.originalsBucket,
+        item.originalKey,
+      ),
       thumbnailViewUrl: item.thumbnailKey
-        ? await this.s3Service.createPresignedGetUrl(this.thumbnailsBucket, item.thumbnailKey)
+        ? await this.s3Service.createPresignedGetUrl(
+            this.thumbnailsBucket,
+            item.thumbnailKey,
+          )
         : null,
     };
   }
@@ -110,10 +125,15 @@ export class ImagesService {
       throw new NotFoundException(`Image with ID ${id} not found`);
     }
 
-    await this.s3Service.deleteObject(this.originalsBucket, item.originalKey);
-    if (item.thumbnailKey) {
-      await this.s3Service.deleteObject(this.thumbnailsBucket, item.thumbnailKey);
-    }
+    try {
+      await this.s3Service.deleteObject(this.originalsBucket, item.originalKey);
+      if (item.thumbnailKey) {
+        await this.s3Service.deleteObject(
+          this.thumbnailsBucket,
+          item.thumbnailKey,
+        );
+      }
+    } catch (error) {}
 
     await this.prisma.image.delete({ where: { id } });
 

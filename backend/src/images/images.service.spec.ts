@@ -29,7 +29,9 @@ describe('ImagesService', () => {
         {
           provide: S3Service,
           useValue: {
-            createPresignedPostUrl: jest.fn().mockResolvedValue({ url: 'http://test', fields: {} }),
+            createPresignedPostUrl: jest
+              .fn()
+              .mockResolvedValue({ url: 'http://test', fields: {} }),
             createPresignedGetUrl: jest.fn().mockResolvedValue('http://view'),
             deleteObject: jest.fn(),
           },
@@ -55,7 +57,11 @@ describe('ImagesService', () => {
 
   it('createUploadUrl should create record and return url', async () => {
     jest.spyOn(prisma.image, 'create').mockResolvedValue({ id: '123' } as any);
-    const result = await service.createUploadUrl({ fileName: 'test.jpg', mimeType: 'image/jpeg', size: 100 });
+    const result = await service.createUploadUrl({
+      fileName: 'test.jpg',
+      mimeType: 'image/jpeg',
+      size: 100,
+    });
     expect(result.id).toBe('123');
     expect(result.uploadUrl).toBe('http://test');
   });
@@ -66,7 +72,11 @@ describe('ImagesService', () => {
   });
 
   it('remove should delete from s3 and db', async () => {
-    jest.spyOn(prisma.image, 'findUnique').mockResolvedValue({ id: '123', originalKey: 'k', thumbnailKey: 'tk' } as any);
+    jest.spyOn(prisma.image, 'findUnique').mockResolvedValue({
+      id: '123',
+      originalKey: 'k',
+      thumbnailKey: 'tk',
+    } as any);
     await service.remove('123');
     expect(s3.deleteObject).toHaveBeenCalledTimes(2);
     expect(prisma.image.delete).toHaveBeenCalledWith({ where: { id: '123' } });

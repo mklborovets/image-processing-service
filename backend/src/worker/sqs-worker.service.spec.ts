@@ -49,14 +49,24 @@ describe('SqsWorkerService', () => {
   });
 
   it('should ignore test events', async () => {
-    const deleteSpy = jest.spyOn(service as any, 'deleteMessage').mockResolvedValue(undefined);
-    await (service as any).processMessage({ Body: JSON.stringify({ Event: 's3:TestEvent' }), ReceiptHandle: 'rh1' });
+    const deleteSpy = jest
+      .spyOn(service as any, 'deleteMessage')
+      .mockResolvedValue(undefined);
+    await (service as any).processMessage({
+      Body: JSON.stringify({ Event: 's3:TestEvent' }),
+      ReceiptHandle: 'rh1',
+    });
     expect(deleteSpy).toHaveBeenCalledWith('rh1');
   });
 
   it('should ignore messages without records', async () => {
-    const deleteSpy = jest.spyOn(service as any, 'deleteMessage').mockResolvedValue(undefined);
-    await (service as any).processMessage({ Body: JSON.stringify({}), ReceiptHandle: 'rh2' });
+    const deleteSpy = jest
+      .spyOn(service as any, 'deleteMessage')
+      .mockResolvedValue(undefined);
+    await (service as any).processMessage({
+      Body: JSON.stringify({}),
+      ReceiptHandle: 'rh2',
+    });
     expect(deleteSpy).toHaveBeenCalledWith('rh2');
   });
 });

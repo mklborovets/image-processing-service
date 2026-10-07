@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+echo "Waiting for Floci to boot..."
+until curl -s http://floci:4566/_floci/health > /dev/null; do
+  sleep 2
+done
 echo "Initializing AWS resources in Floci (S3, SQS)..."
 
 export AWS_ACCESS_KEY_ID=test
